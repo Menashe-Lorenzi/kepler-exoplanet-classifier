@@ -56,7 +56,39 @@ The ultimate goal is to identify which model best fits different operational con
 - **KNN**: Fastest, ideal for real-time candidate filtering  
 
 ---
+## Tech Stack
+Python | scikit-learn | TensorFlow | KerasTuner | NumPy
 
+---
+## Repository Structure
+
+data/
+   cumulative.csv     ← RAW / CLEAN INPUT
+/figures          -> plots and learning curves
+/tuner_logs       -> KerasTuner search records
+
+Kepler_Exoplanet_ML_Classification.ipynb -> main research notebook
+Kepler_Exoplanet_Classification.pdf      -> full research report
+
+best_mlp.keras      -> tuned neural network model
+best_model.keras   -> final deployed classifier
+best_rf_params.json-> optimized RF hyperparameters
+
+cumulative.csv     -> prediction probabilities and metrics summary
+requirements.txt   -> python dependency list
+
+---
+## How To Run
+pip install -r requirements.txt
+python Kepler_Exoplanet_ML_Classitication.ipynb
+
+---
+## Full Report
+The full research methodology, detailed experiments,
+and analysis are documented in:
+
+Kepler_Exoplanet_Classification.pdf
+---
 ## Expected Impact  
 - Improve the automation of exoplanet confirmation  
 - Enable faster and more reliable pre-selection for telescope follow-up  
