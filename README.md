@@ -62,20 +62,37 @@ Python | scikit-learn | TensorFlow | KerasTuner | NumPy
 ---
 ## Repository Structure
 
-data/
-   cumulative.csv     ← RAW / CLEAN INPUT
-/figures          -> plots and learning curves
-/tuner_logs       -> KerasTuner search records
+kepler-exoplanet-classifier/
 
 Kepler_Exoplanet_ML_Classification.ipynb -> main research notebook
 Kepler_Exoplanet_Classification.pdf      -> full research report
 
-best_mlp.keras      -> tuned neural network model
-best_model.keras   -> final deployed classifier
-best_rf_params.json-> optimized RF hyperparameters
+data/
+  cumulative.csv
+  kepler_cleaned_scaled.csv
+  kepler_model_ready.csv
+  kepler_with_metadata.csv
+  kepler_with_outliers_scaled.csv
 
-cumulative.csv     -> prediction probabilities and metrics summary
+models/
+  best_mlp.keras
+  best_model.keras
+  best_rf_params.json
+
+figures/
+  KNN/
+  MLP/
+  RF/
+  compare/
+
+tuner_logs/
+  mlp_kepler/
+  mlp_tuning/
+  mlp_tuning_fix/
+
 requirements.txt   -> python dependency list
+README.md
+LICENSE
 
 ---
 ## How To Run
@@ -88,6 +105,7 @@ The full research methodology, detailed experiments,
 and analysis are documented in:
 
 Kepler_Exoplanet_Classification.pdf
+
 ---
 ## Expected Impact  
 - Improve the automation of exoplanet confirmation  
