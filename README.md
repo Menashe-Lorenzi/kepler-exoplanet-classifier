@@ -8,6 +8,21 @@ The ultimate goal is to identify which model best fits different operational con
 
 ---
 
+## 🔄 Project Versions & Reproducibility
+
+This repository contains two versions of the experiment:
+
+1.  **Legacy Version (`Kepler_Exoplanet_ML_Classitication_paper_notebook.ipynb`):**
+    The original code used for the paper (pdf).
+
+2.  **Updated Version (`Kepler_Exoplanet_ML_Classitication.ipynb`):**
+    A refined version executed on newer hardware : Apple M3 Max
+RAM GB: 36.0.
+    * **Updates:** Model "Personality" & Edge Cases Analysis.
+    * **Note:** While core findings remain consistent, slight variances in performance metrics may appear due to hardware differences and library updates.
+
+---
+
 ## Research Questions  
 1. Which machine learning model achieves the highest classification accuracy and reliability for identifying exoplanets?  
 2. How does probability calibration differ between MLP, RF, and KNN, and in which scenarios is it most important?  
