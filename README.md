@@ -39,21 +39,69 @@ The ultimate goal is to identify which model best fits different operational con
 
 **Evaluation Metrics**  
 - Primary: **LogLoss** (binary cross-entropy) for probability quality  
-- Secondary: Accuracy, AUC, Average Precision (AP), Expected Calibration Error (ECE), inference time  
+- Secondary: Accuracy, AUC, Average Precision (AP), Expected Calibration Error (ECE), inference time
+
+### Advanced Evaluation Strategy
+Beyond standard metrics, we conducted a **"Model vs. NASA Flags" stress test** to evaluate performance on edge cases:
+1.  **"Clean Imposters" (Scenario A):** Noise signals that NASA flags missed (Flags=0, Label=False Positive).
+2.  **"Wrongly Flagged" (Scenario B):** Real planets that NASA flags discarded (Flags=1, Label=Confirmed).
+3.  **Confidence Analysis:** Analyzed the probability distribution of errors to understand the "personality" of each model (High-Confidence vs. Low-Confidence mistakes).
 
 ---
 
 ## Key Results  
 | Model | Accuracy | AUC | LogLoss | ECE | Inference Speed |
 |-------|----------|-----|---------|-----|----------------|
-| **Random Forest** | 96.45% | 0.9906 | 0.1098 | 0.0194 | 0.114 ms/sample |
-| **MLP** | 95.36% | 0.9868 | 0.1414 | **0.0115** | 0.096 ms/sample |
-| **KNN** | 93.03% | 0.9736 | 0.2925 | 0.0121 | **0.078 ms/sample** |
+| **Random Forest** | 96.45% | 0.9906 | 0.1098 | 0.0194 | 0.57 ms/sample |
+| **MLP** | 95.08% | 0.9860 | 0.1452 | 0.0173 | 0.029 ms/sample |
+| **KNN** | 93.03% | 0.9736 | 0.2925 | 0.0121 | 0.035 ms/sample |
 
-**Insights**  
-- **RF**: Best overall for accuracy and precision–recall performance in high-stakes confirmation  
-- **MLP**: Most stable and best-calibrated for probability ranking tasks  
-- **KNN**: Fastest, ideal for real-time candidate filtering  
+
+---
+
+## Deep Dive: Model "Personality" & Edge Cases
+
+While Random Forest achieved the highest global accuracy, our detailed error analysis revealed distinct "superpowers" for each model, suggesting they solve different parts of the astronomical puzzle:
+
+### 1. MLP as the "Gatekeeper" (Detecting Hidden Noise)
+In scenarios where NASA's automated flags failed (**Scenario A**: Flags=0 but Label=Noise), the **MLP correctly identified 100% of the "Clean Imposters."**
+* **Insight:** This proves the neural network learned complex physical patterns (transit shape, depth consistency) rather than relying solely on the provided flags, making it an excellent auditor for "clean" candidates.
+
+### 2. KNN as the "Scout" (Recovering Lost Planets)
+Despite lower overall accuracy, **KNN successfully "rescued" 25% of real planets** that were wrongly flagged as noise by NASA (**Scenario B**).
+* **Insight:** Its similarity-based approach allowed it to identify rare planetary candidates that looked like noise to rule-based systems but had neighbors with confirmed planetary status.
+
+### 3. Confidence Analysis: Conservative vs. Bold
+* **Random Forest (Conservative):** When RF errors, it does so with low confidence (~0.5-0.6), making it a safe, stable baseline for general classification.
+* **KNN (Bold):** Exhibits high-confidence errors (~0.9-1.0). While risky as a standalone model, this trait makes it sensitive to outliers and useful for flagging anomalies.
+
+### Physical Challenges & Failure Modes
+
+Beyond the reliance on NASA flags, our error analysis identified specific physical characteristics that consistently confused the models. These "blind spots" highlight the inherent difficulty of exoplanet detection:
+
+* **Extreme Physics (Radius & Heat):**
+    * **Small Radius (`koi_prad`):** All models struggled with Earth-sized or smaller candidates. The signal produced by small planets is often indistinguishable from stellar variability.
+    * **Extreme Heat (`koi_insol`):** High insolation flux caused failures, particularly for Random Forest. The models often misclassified scorching hot planets as stellar binaries due to their intense energy signatures.
+
+* **Signal Quality (Depth & SNR):**
+    * **Shallow Transits (`koi_depth`):** MLP failed significantly when transit depth was very low. The neural network struggled to lock onto the faint "dip" patterns, treating them as background noise.
+    * **Low Signal-to-Noise (`koi_model_snr`):** KNN performance degraded heavily in low-SNR environments. Since KNN relies on distance metrics, "fuzzy" or noisy signals created random neighbors, leading to misclassification.
+
+* **Temporal Dynamics (The "Fast & Slow" Paradox):**
+    * **Rapid Orbits:** MLP tended to flag very short-period candidates (< 3 days) as false positives, confusing them with high-frequency instrumental noise.
+    * **Long Orbits:** KNN failed on long-period candidates (> 60 days). Long orbits imply fewer observed transit events (sparse data), making it difficult for the algorithm to find statistically similar "neighbors."
+
+---
+
+## Strategic Conclusion: The Hybrid Pipeline
+
+Based on these findings, we propose a multi-stage automated discovery pipeline instead of a single-model solution:
+
+1.  **Stage 1 (RF):** Use Random Forest for rapid, high-accuracy initial classification.
+2.  **Stage 2 (MLP Auditor):** Pass all "Confirmed" candidates through MLP to filter out subtle noise ("Clean Imposters") that RF might miss.
+3.  **Stage 3 (KNN Discovery):** Pass all "False Positives" through KNN to flag potential "Lost Planets" for manual scientific review.
+
+This ensemble approach leverages the **stability** of RF, the **pattern-recognition** of MLP, and the **anomaly detection** of KNN to maximize scientific discovery.
 
 ---
 ## Tech Stack
@@ -65,7 +113,8 @@ Python | scikit-learn | TensorFlow | KerasTuner | NumPy
 kepler-exoplanet-classifier/
 
 Kepler_Exoplanet_ML_Classification.ipynb -> main research notebook
-Kepler_Exoplanet_Classification.pdf      -> full research report
+Kepler_Exoplanet_ML_Classitication_paper_notebook.ipynb -> old research renotebook (Without "Model Personality Analysis & Edge Cases")
+Kepler_Exoplanet_Classification.pdf -> full research report(Without "Model Personality Analysis & Edge Cases")
 
 data/
   cumulative.csv
